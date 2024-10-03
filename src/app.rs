@@ -2,6 +2,7 @@ use crate::util;
 use std::fs;
 use std::path::Path;
 use std::fmt::Display;
+use colored::Colorize;
 
 use clap::Parser;
 
@@ -34,7 +35,7 @@ impl App {
 
         match util::write_to_clipboard(&all_contents).map_err(|e| e.to_string()) {
             Ok(_) => {
-                println!("已将 {file_count} 个文件内容复制到剪贴板");
+                println!("已将 {} 个文件的内容复制到剪贴板", file_count.to_string().green());
                 Ok(())
             },
             Err(e) => Err(e),
@@ -54,14 +55,14 @@ impl App {
                 let display_path = entry_path.display().to_string();
                 // 跳过非文本文件
                 if !util::is_text_file(&entry_path).map_err(|e| e.to_string())? {
-                    println!("跳过非文本文件: {name}");
+                    println!("跳过非文本文件: {}", name.yellow());
                     continue;
                 }
 
                 // 过滤路径
                 if let Some(not_need_paths) = &self.not_need_paths {
                     if not_need_paths.iter().any(|filter| display_path.contains(filter)) {
-                        println!("跳过指定的路径: {display_path}");
+                        println!("跳过指定的路径: {}", display_path.yellow());
                         continue;
                     }
                 };
@@ -69,14 +70,14 @@ impl App {
                 // 过滤文件名
                 if let Some(names) = &self.file_names {
                     if names.iter().all(|filter| !name.contains(filter)) {
-                        println!("跳过非过滤列表文件: {name}");
+                        println!("跳过非过滤列表文件: {}", name.yellow());
                         continue;
                     }
                 }
                 let content = match fs::read_to_string(&entry_path) {
                     Ok(content) => content,
                     Err(e) => {
-                        eprintln!("在读取 {name} 的内容时出错: {e}，跳过此文件");
+                        eprintln!("在读取 {} 的内容时出错: {}，跳过此文件", name.yellow(), e.to_string().red());
                         continue
                     },
                 };
