@@ -63,6 +63,7 @@ impl App {
                     if not_need_paths.iter().any(|filter| display_path.contains(filter)) {
                         println!("跳过指定的路径: {display_path}");
                     }
+                    continue;
                 };
 
                 // 过滤文件名
