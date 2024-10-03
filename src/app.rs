@@ -29,6 +29,7 @@ impl App {
         let mut all_contents = String::new();
         let mut file_count = 0;
         while let Some(file_info) = file_infos.pop() {
+            println!("复制文件内容：{}", file_info.path.green());
             all_contents.push_str(file_info.to_string().as_str());
             file_count += 1;
         }
