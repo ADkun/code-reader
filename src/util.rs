@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use clipboard::{ClipboardContext, ClipboardProvider};
 use std::env;
 use std::path::Path;

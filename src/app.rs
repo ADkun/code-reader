@@ -3,36 +3,25 @@ use std::fs;
 use std::path::Path;
 use std::fmt::Display;
 
+use clap::Parser;
+
 /// 主程序运行
+#[derive(Parser)]
 pub struct App {
     /// 目录路径
+    #[arg(short, long, value_name = "目录路径", help = "指定要读取的目录路径")]
     path: String,
-    /// 过滤器
-    filters: Option<Vec<String>>,
+
+    /// 需要的文件名
+    #[arg(short, long, value_name = "需要的文件名", help = "指定需要读取的文件名（模糊匹配）")]
+    file_names: Option<Vec<String>>,
+
+    /// 不需要的路径
+    #[arg(short, long, value_name = "不需要的路径", help = "指定不需要读取的路径（模糊匹配）")]
+    not_need_paths: Option<Vec<String>>,
 }
 
 impl App {
-    /// 从命令行获取参数并构建出App
-    pub fn from_env() -> Result<Self, String> {
-        let args = util::env_args();
-
-        if args.len() < 2 {
-            return Err("使用方法：code-reader <目录路径> [文件名过滤...]".to_owned());
-        }
-
-        let path = args[1].clone();
-        if !util::is_dir(&path) {
-            return Err(format!("{} 不是一个目录", path));
-        }
-
-        let filters: Vec<String> = args.iter().skip(2).map(|s| s.to_owned()).collect();
-        if !filters.is_empty() {
-            Ok(Self { path, filters: Some(filters) })
-        } else {
-            Ok(Self { path, filters: None })
-        }
-    }
-
     /// 程序启动入口
     pub fn run(&self) -> Result<(), String> {
         let mut file_infos = self.traverse_path_get_file_contents(&self.path)?;
@@ -62,14 +51,23 @@ impl App {
                 results.append(&mut new_results);
             } else if entry_path.is_file() {
                 let name = entry_path.file_name().unwrap().to_str().unwrap().to_owned();
+                let display_path = entry_path.display().to_string();
                 // 跳过非文本文件
                 if !util::is_text_file(&entry_path).map_err(|e| e.to_string())? {
                     println!("跳过非文本文件: {name}");
                     continue;
                 }
+
+                // 过滤路径
+                if let Some(not_need_paths) = &self.not_need_paths {
+                    if not_need_paths.iter().any(|filter| display_path.contains(filter)) {
+                        println!("跳过指定的路径: {display_path}");
+                    }
+                };
+
                 // 过滤文件名
-                if let Some(filters) = &self.filters {
-                    if filters.iter().all(|filter| !name.contains(filter)) {
+                if let Some(names) = &self.file_names {
+                    if names.iter().all(|filter| !name.contains(filter)) {
                         println!("跳过非过滤列表文件: {name}");
                         continue;
                     }

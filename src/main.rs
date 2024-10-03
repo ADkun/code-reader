@@ -1,13 +1,8 @@
+use clap::Parser;
 use code_reader::app::App;
 
 fn main() {
-    let app = match App::from_env() {
-        Ok(app) => app,
-        Err(e) => {
-            eprintln!("Error: {}", e);
-            std::process::exit(1);
-        }
-    };
+    let app = App::parse();
 
     match app.run() {
         Ok(_) => {},
