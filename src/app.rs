@@ -5,8 +5,8 @@ use std::fmt::Display;
 
 use clap::Parser;
 
-/// 主程序运行
 #[derive(Parser)]
+#[command( version = "1.0")]
 pub struct App {
     /// 目录路径
     #[arg(short, long, value_name = "目录路径", help = "指定要读取的目录路径")]
