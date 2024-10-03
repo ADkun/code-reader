@@ -8,7 +8,7 @@ pub struct App {
     /// 目录路径
     path: String,
     /// 过滤器
-    filters: Vec<String>,
+    filters: Option<Vec<String>>,
 }
 
 impl App {
@@ -26,7 +26,11 @@ impl App {
         }
 
         let filters: Vec<String> = args.iter().skip(2).map(|s| s.to_owned()).collect();
-        Ok(Self { path, filters })
+        if !filters.is_empty() {
+            Ok(Self { path, filters: Some(filters) })
+        } else {
+            Ok(Self { path, filters: None })
+        }
     }
 
     /// 程序启动入口
@@ -64,9 +68,11 @@ impl App {
                     continue;
                 }
                 // 过滤文件名
-                if !self.filters.iter().any(|filter| name.contains(filter)) {
-                    println!("跳过非过滤列表文件: {name}");
-                    continue;
+                if let Some(filters) = &self.filters {
+                    if filters.iter().all(|filter| !name.contains(filter)) {
+                        println!("跳过非过滤列表文件: {name}");
+                        continue;
+                    }
                 }
                 let content = match fs::read_to_string(&entry_path) {
                     Ok(content) => content,
