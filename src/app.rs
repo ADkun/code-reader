@@ -70,7 +70,7 @@ impl App {
                 // 过滤文件名
                 if let Some(names) = &self.file_names {
                     if names.iter().all(|filter| !name.contains(filter)) {
-                        println!("跳过非过滤列表文件: {}", name.yellow());
+                        println!("跳过非指定文件名文件: {}", name.yellow());
                         continue;
                     }
                 }
