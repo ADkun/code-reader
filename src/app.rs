@@ -44,7 +44,7 @@ impl App {
                 println!("已将 {file_count} 个文件内容复制到剪贴板");
                 Ok(())
             },
-            Err(e) => return Err(e),
+            Err(e) => Err(e),
         }
     }
 
